@@ -145,7 +145,8 @@ QVariant HandleItem::itemChange( GraphicsItemChange change, const QVariant &data
         // Prevent the rectangle from collapsing.
         if ( newRect.height() - movement.y() <= MinSize )
         {
-            newRect.setHeight(MinSize);
+            newRect.setTop(newRect.bottom() - MinSize);
+            //newRect.setHeight(MinSize);
             m_item->setRect(newRect);
             newData.setX(pos().x());
             newData.setY(m_item->boundingRect().y() - boundingRect().height() / 2); // + m_item->boundingRect().height());
@@ -166,10 +167,13 @@ QVariant HandleItem::itemChange( GraphicsItemChange change, const QVariant &data
       }
     case LeftHandle:
       {
-        // Prevent the rectangle from collapsing.
+        // Prevent the rectangle from collapsing
         if ( newRect.width() - movement.x() <= MinSize )
         {
-          newRect.setWidth(MinSize);
+          newRect.setLeft(newRect.right() - MinSize);
+	  //float oldLeft = m_item->rect().left();
+          //newRect.setWidth(MinSize);
+	  //newRect.setLeft(oldLeft);
           m_item->setRect(newRect);
           newData.setX(m_item->boundingRect().x() - MinSize / 2);
           newData.setY(pos().y());
