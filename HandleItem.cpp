@@ -40,6 +40,10 @@ HandleItem::HandleItem( QGraphicsRectItem *item, QGraphicsScene *scene,
       setX(m_item->rect().left() + m_item->rect().width() / 2 - HandleRadius);
       setY(m_item->rect().bottom() - HandleRadius);
       break;
+    case CenterHandle:
+      setX(m_item->rect().left() + m_item->rect().width() / 2 - HandleRadius);
+      setY(m_item->rect().y() + m_item->rect().height() / 2 - HandleRadius);
+      break;
     }
 
     setFlag( ItemSendsGeometryChanges );
@@ -82,6 +86,13 @@ void HandleItem::Update()
     this->setPos(position);
     break;
     }
+  case CenterHandle:
+    {
+    QPointF position(this->m_item->rect().left() + this->m_item->rect().width()/2 - HandleRadius,
+                     this->m_item->rect().top() + this->m_item->rect().height()/2 - HandleRadius);
+    this->setPos(position);
+    break;
+    }
   }
 }
 
@@ -109,6 +120,10 @@ void HandleItem::paint( QPainter *paint, const QStyleOptionGraphicsItem *option,
     break;
   case BottomHandle:
     points << QPointF(0,HandleRadius) << QPointF(HandleRadius*2,HandleRadius) << QPointF(HandleRadius, 2*HandleRadius);
+    paint->drawConvexPolygon( QPolygonF(points) );
+    break;
+  case CenterHandle:
+    points << QPointF(0,0) << QPointF(HandleRadius*2,0) << QPointF(HandleRadius*2, 2*HandleRadius) << QPointF(0, 2*HandleRadius);
     paint->drawConvexPolygon( QPolygonF(points) );
     break;
   }
@@ -225,6 +240,12 @@ QVariant HandleItem::itemChange( GraphicsItemChange change, const QVariant &data
         newRect.setBottom(m_item->rect().bottom() + movement.y());
 
         m_item->setRect(newRect);
+
+        break;
+      }
+    case CenterHandle:
+      {
+        m_item->translate(movement.x(), movement.y());
 
         break;
       }
