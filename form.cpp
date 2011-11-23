@@ -16,16 +16,16 @@ Form::Form(QWidget *parent) : QWidget(parent)
   HandleItem *topHandle = new HandleItem( rectItem, scene, Qt::red, HandleItem::TopHandle );
   HandleItem *rightHandle = new HandleItem( rectItem, scene, Qt::red, HandleItem::RightHandle );
   HandleItem *leftHandle = new HandleItem( rectItem, scene, Qt::red, HandleItem::LeftHandle );
+  HandleItem *bottomHandle = new HandleItem( rectItem, scene, Qt::red, HandleItem::BottomHandle );
 
   topHandle->SetDependentHandles(QList<HandleItem*>() << rightHandle << leftHandle);
 
-  rightHandle->SetDependentHandles(QList<HandleItem*>() << topHandle);
+  rightHandle->SetDependentHandles(QList<HandleItem*>() << topHandle << bottomHandle);
 
-  leftHandle->SetDependentHandles(QList<HandleItem*>() << topHandle);
-//   HandleItem *leftHandle = new HandleItem( rectItem, scene, Qt::red, HandleItem::LeftHandle );
-//   HandleItem *bottomHandle = new HandleItem( rectItem, scene, Qt::red, HandleItem::BottomHandle );
-//   HandleItem *centerHandle = new HandleItem( rectItem, scene, Qt::red, HandleItem::CenterHandle, QList<HandleItem*>() << topHandle << rightHandle << leftHandle << bottomHandle );
+  leftHandle->SetDependentHandles(QList<HandleItem*>() << topHandle << bottomHandle);
+
+  bottomHandle->SetDependentHandles(QList<HandleItem*>() << rightHandle << leftHandle);
 
   this->graphicsView->setScene( scene );
-  
+
 }

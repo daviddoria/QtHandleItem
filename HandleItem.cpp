@@ -28,13 +28,17 @@ HandleItem::HandleItem( QGraphicsRectItem *item, QGraphicsScene *scene,
       setX(m_item->rect().x() + m_item->rect().width() - HandleRadius);
       setY(m_item->rect().y() + m_item->rect().height() / 2 - HandleRadius);
       break;
+    case LeftHandle:
+      setX(m_item->rect().x() - HandleRadius);
+      setY(m_item->rect().y() + m_item->rect().height() / 2 - HandleRadius);
+      break;
     case TopHandle:
       setX(m_item->rect().left() + m_item->rect().width() / 2 - HandleRadius);
       setY(m_item->rect().top() - HandleRadius);
       break;
-    case LeftHandle:
-      setX(m_item->rect().x() - HandleRadius);
-      setY(m_item->rect().y() + m_item->rect().height() / 2 - HandleRadius);
+    case BottomHandle:
+      setX(m_item->rect().left() + m_item->rect().width() / 2 - HandleRadius);
+      setY(m_item->rect().bottom() - HandleRadius);
       break;
     }
 
@@ -57,7 +61,12 @@ void HandleItem::Update()
   case RightHandle:
     {
     QPointF position(this->m_item->rect().right() - HandleRadius, this->m_item->rect().top() + this->m_item->rect().height()/2 - HandleRadius);
-    //this->translate(1,1);
+    this->setPos(position);
+    break;
+    }
+  case LeftHandle:
+    {
+    QPointF position(this->m_item->rect().left() - HandleRadius, this->m_item->rect().top() + this->m_item->rect().height()/2 - HandleRadius);
     this->setPos(position);
     break;
     }
@@ -67,9 +76,9 @@ void HandleItem::Update()
     this->setPos(position);
     break;
     }
-  case LeftHandle:
+  case BottomHandle:
     {
-    QPointF position(this->m_item->rect().left() - HandleRadius, this->m_item->rect().top() + this->m_item->rect().height()/2 - HandleRadius);
+    QPointF position(this->m_item->rect().left() + this->m_item->rect().width()/2 - HandleRadius, this->m_item->rect().bottom() - HandleRadius);
     this->setPos(position);
     break;
     }
@@ -90,12 +99,16 @@ void HandleItem::paint( QPainter *paint, const QStyleOptionGraphicsItem *option,
     points << QPointF(2*HandleRadius,HandleRadius) << QPointF(HandleRadius,0) << QPointF(HandleRadius,2*HandleRadius);
     paint->drawConvexPolygon( QPolygonF(points) );
     break;
+  case LeftHandle:
+    points << QPointF(HandleRadius,HandleRadius*2) << QPointF(0,HandleRadius) << QPointF(HandleRadius,0);
+    paint->drawConvexPolygon( QPolygonF(points) );
+    break;
   case TopHandle:
     points << QPointF(0,HandleRadius) << QPointF(HandleRadius*2,HandleRadius) << QPointF(HandleRadius,0);
     paint->drawConvexPolygon( QPolygonF(points) );
     break;
-  case LeftHandle:
-    points << QPointF(HandleRadius,HandleRadius*2) << QPointF(0,HandleRadius) << QPointF(HandleRadius,0);
+  case BottomHandle:
+    points << QPointF(0,HandleRadius) << QPointF(HandleRadius*2,HandleRadius) << QPointF(HandleRadius, 2*HandleRadius);
     paint->drawConvexPolygon( QPolygonF(points) );
     break;
   }
@@ -140,6 +153,32 @@ QVariant HandleItem::itemChange( GraphicsItemChange change, const QVariant &data
 
         break;
       }
+    case LeftHandle:
+      {
+        // Prevent the rectangle from collapsing
+        if ( newRect.width() - movement.x() <= MinSize )
+        {
+          newRect.setLeft(newRect.right() - MinSize);
+	  //float oldLeft = m_item->rect().left();
+          //newRect.setWidth(MinSize);
+	  //newRect.setLeft(oldLeft);
+          m_item->setRect(newRect);
+          newData.setX(m_item->boundingRect().x() - MinSize / 2);
+          newData.setY(pos().y());
+
+          emit Changed();
+          return QGraphicsItem::itemChange( change, newData );
+        }
+
+        // Snap the movement to the X direction
+        newData.setY(m_item->rect().y() + m_item->rect().height() / 2 - HandleRadius);
+
+        // Resize the rectangle
+        newRect.setLeft(m_item->rect().left() + movement.x());
+        m_item->setRect(newRect);
+
+        break;
+      }
     case TopHandle:
       {
         // Prevent the rectangle from collapsing.
@@ -165,28 +204,26 @@ QVariant HandleItem::itemChange( GraphicsItemChange change, const QVariant &data
 
         break;
       }
-    case LeftHandle:
+    case BottomHandle:
       {
-        // Prevent the rectangle from collapsing
-        if ( newRect.width() - movement.x() <= MinSize )
+        // Prevent the rectangle from collapsing.
+        if ( newRect.height() + movement.y() <= MinSize )
         {
-          newRect.setLeft(newRect.right() - MinSize);
-	  //float oldLeft = m_item->rect().left();
-          //newRect.setWidth(MinSize);
-	  //newRect.setLeft(oldLeft);
-          m_item->setRect(newRect);
-          newData.setX(m_item->boundingRect().x() - MinSize / 2);
-          newData.setY(pos().y());
+            newRect.setBottom(newRect.top() + MinSize);
+            m_item->setRect(newRect);
+            newData.setX(pos().x());
+            newData.setY(m_item->boundingRect().y() + boundingRect().height() / 2);
 
-          emit Changed();
-          return QGraphicsItem::itemChange( change, newData );
+            emit Changed();
+            return QGraphicsItem::itemChange( change, newData );
         }
 
-        // Snap the movement to the X direction
-        newData.setY(m_item->rect().y() + m_item->rect().height() / 2 - HandleRadius);
+        // Snap the movement to the Y direction
+        newData.setX(m_item->rect().x() + m_item->rect().width() / 2 - HandleRadius);
 
         // Resize the rectangle
-        newRect.setLeft(m_item->rect().left() + movement.x());
+        newRect.setBottom(m_item->rect().bottom() + movement.y());
+
         m_item->setRect(newRect);
 
         break;
