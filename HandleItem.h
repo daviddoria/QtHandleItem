@@ -20,7 +20,7 @@ public:
     BottomHandle
   };
 
-  HandleItem( QGraphicsScene *scene, const QColor color);
+  HandleItem( QRect rect, QGraphicsScene *scene, const QColor color);
     
   void paint( QPainter *paint, const QStyleOptionGraphicsItem *option, QWidget *widget );
   QRectF boundingRect() const;
@@ -34,7 +34,7 @@ signals:
   void Changed();
   
 protected:
-  HandleItem( QGraphicsScene *scene);
+  HandleItem( QGraphicsRectItem *item, const QColor color, const HandleItem::HandleRole, QGraphicsScene *scene);
   void SetDefauls();
   void mousePressEvent( QGraphicsSceneMouseEvent *event );
   void mouseReleaseEvent( QGraphicsSceneMouseEvent *event );

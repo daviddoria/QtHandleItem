@@ -6,29 +6,23 @@
 #include <cmath>
 #include <iostream>
 
-HandleItem::HandleItem( QGraphicsScene *scene, const QColor color) : QGraphicsItem( 0, scene )
+HandleItem::HandleItem( QRect rect, QGraphicsScene *scene, const QColor color) : QGraphicsItem( 0, scene ),
+                        m_role(HandleItem::CenterHandle),
+                        m_color(color), m_item(new QGraphicsRectItem( rect, 0, scene ))
 {
-    m_role = HandleItem::CenterHandle;
-    m_color = color;
-
-    m_item = new QGraphicsRectItem( QRect( 10, 10, 50, 100 ), 0, scene );
-
+    // This constructor sets up the center handle, as well as creates the other handles and links everything together.
     // The center handle must know about all of the other handles so it can translate them with the object
 
-    HandleItem *topHandle = new HandleItem( scene);
-    topHandle->SetRole(HandleItem::TopHandle );
+    HandleItem *topHandle = new HandleItem( m_item, color, HandleItem::TopHandle, scene );
     topHandle->SetRectItem(m_item);
     
-    HandleItem *rightHandle = new HandleItem(scene);
-    rightHandle->SetRole(HandleItem::RightHandle );
+    HandleItem *rightHandle = new HandleItem(m_item, color, HandleItem::RightHandle, scene );
     rightHandle->SetRectItem(m_item);
     
-    HandleItem *leftHandle = new HandleItem( scene);
-    leftHandle->SetRole(HandleItem::LeftHandle);
+    HandleItem *leftHandle = new HandleItem( m_item, color, HandleItem::LeftHandle, scene );
     leftHandle->SetRectItem(m_item);
     
-    HandleItem *bottomHandle = new HandleItem(scene);
-    bottomHandle->SetRole( HandleItem::BottomHandle );
+    HandleItem *bottomHandle = new HandleItem(m_item, color, HandleItem::BottomHandle, scene );
     bottomHandle->SetRectItem(m_item);
 
     m_handles.push_back(topHandle);
@@ -46,6 +40,8 @@ HandleItem::HandleItem( QGraphicsScene *scene, const QColor color) : QGraphicsIt
 
     this->SetDependentHandles(QList<HandleItem*>() << rightHandle << leftHandle << topHandle << bottomHandle);
 
+    SetDefauls();
+    
     setX(m_item->rect().left() + m_item->rect().width() / 2 - HandleRadius);
     setY(m_item->rect().y() + m_item->rect().height() / 2 - HandleRadius);
     
@@ -53,7 +49,8 @@ HandleItem::HandleItem( QGraphicsScene *scene, const QColor color) : QGraphicsIt
 
 void HandleItem::SetDefauls()
 {
-
+    // These things are needed in both constructors
+  
     m_pressed = false;
     setZValue( 100 );
 
@@ -66,10 +63,11 @@ void HandleItem::SetDefauls()
     
 }
 
-HandleItem::HandleItem( QGraphicsScene *scene) : QGraphicsItem( 0, scene )
+HandleItem::HandleItem( QGraphicsRectItem* item, const QColor color, const HandleItem::HandleRole role, QGraphicsScene *scene) : QGraphicsItem( 0, scene ) 
+                       , m_item(item), m_color(color), m_role(role)
 {
+  // This constructor is used internally to setup the left, right, top, and bottom handles
   SetDefauls();
-
 
   switch( m_role )
   {
