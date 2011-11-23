@@ -245,8 +245,13 @@ QVariant HandleItem::itemChange( GraphicsItemChange change, const QVariant &data
       }
     case CenterHandle:
       {
-        m_item->translate(movement.x(), movement.y());
-
+        //m_item->translate(movement.x(), movement.y());
+        QRectF rect = m_item->rect();
+        rect.setX(rect.x() + movement.x());
+        rect.setY(rect.y() + movement.y());
+        rect.setWidth(rect.width() + movement.x());
+        rect.setHeight(rect.height() + movement.y());
+        m_item->setRect(rect);
         break;
       }
     } // end switch
