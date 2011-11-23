@@ -20,17 +20,22 @@ public:
     BottomHandle
   };
 
-  HandleItem( QGraphicsRectItem *item, QGraphicsScene *scene, QColor color, HandleRole role = CenterHandle);
-  
+  HandleItem( QGraphicsScene *scene, const QColor color);
+    
   void paint( QPainter *paint, const QStyleOptionGraphicsItem *option, QWidget *widget );
   QRectF boundingRect() const;
 
   void SetDependentHandles(QList<HandleItem*> handles);
 
+  void SetRole(const HandleRole);
+  void SetRectItem(QGraphicsRectItem*);
+  
 signals:
   void Changed();
   
 protected:
+  HandleItem( QGraphicsScene *scene);
+  void SetDefauls();
   void mousePressEvent( QGraphicsSceneMouseEvent *event );
   void mouseReleaseEvent( QGraphicsSceneMouseEvent *event );
   

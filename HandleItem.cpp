@@ -6,13 +6,53 @@
 #include <cmath>
 #include <iostream>
 
-HandleItem::HandleItem( QGraphicsRectItem *item, QGraphicsScene *scene,
-                        QColor color, HandleItem::HandleRole role) : QGraphicsItem( 0, scene )
+HandleItem::HandleItem( QGraphicsScene *scene, const QColor color) : QGraphicsItem( 0, scene )
 {
-    m_role = role;
+    m_role = HandleItem::CenterHandle;
     m_color = color;
 
-    m_item = item;
+    m_item = new QGraphicsRectItem( QRect( 10, 10, 50, 100 ), 0, scene );
+
+    // The center handle must know about all of the other handles so it can translate them with the object
+
+    HandleItem *topHandle = new HandleItem( scene);
+    topHandle->SetRole(HandleItem::TopHandle );
+    topHandle->SetRectItem(m_item);
+    
+    HandleItem *rightHandle = new HandleItem(scene);
+    rightHandle->SetRole(HandleItem::RightHandle );
+    rightHandle->SetRectItem(m_item);
+    
+    HandleItem *leftHandle = new HandleItem( scene);
+    leftHandle->SetRole(HandleItem::LeftHandle);
+    leftHandle->SetRectItem(m_item);
+    
+    HandleItem *bottomHandle = new HandleItem(scene);
+    bottomHandle->SetRole( HandleItem::BottomHandle );
+    bottomHandle->SetRectItem(m_item);
+
+    m_handles.push_back(topHandle);
+    m_handles.push_back(rightHandle);
+    m_handles.push_back(leftHandle);
+    m_handles.push_back(bottomHandle);
+
+    topHandle->SetDependentHandles(QList<HandleItem*>() << rightHandle << leftHandle << this);
+
+    rightHandle->SetDependentHandles(QList<HandleItem*>() << topHandle << bottomHandle << this);
+
+    leftHandle->SetDependentHandles(QList<HandleItem*>() << topHandle << bottomHandle << this);
+
+    bottomHandle->SetDependentHandles(QList<HandleItem*>() << rightHandle << leftHandle << this);
+
+    this->SetDependentHandles(QList<HandleItem*>() << rightHandle << leftHandle << topHandle << bottomHandle);
+
+    setX(m_item->rect().left() + m_item->rect().width() / 2 - HandleRadius);
+    setY(m_item->rect().y() + m_item->rect().height() / 2 - HandleRadius);
+    
+}
+
+void HandleItem::SetDefauls()
+{
 
     m_pressed = false;
     setZValue( 100 );
@@ -21,32 +61,47 @@ HandleItem::HandleItem( QGraphicsRectItem *item, QGraphicsScene *scene,
 
     HandleRadius = 5;
     MinSize = 10;
-    
-    switch( m_role )
-    {
-    case RightHandle:
-      setX(m_item->rect().x() + m_item->rect().width() - HandleRadius);
-      setY(m_item->rect().y() + m_item->rect().height() / 2 - HandleRadius);
-      break;
-    case LeftHandle:
-      setX(m_item->rect().x() - HandleRadius);
-      setY(m_item->rect().y() + m_item->rect().height() / 2 - HandleRadius);
-      break;
-    case TopHandle:
-      setX(m_item->rect().left() + m_item->rect().width() / 2 - HandleRadius);
-      setY(m_item->rect().top() - HandleRadius);
-      break;
-    case BottomHandle:
-      setX(m_item->rect().left() + m_item->rect().width() / 2 - HandleRadius);
-      setY(m_item->rect().bottom() - HandleRadius);
-      break;
-    case CenterHandle:
-      setX(m_item->rect().left() + m_item->rect().width() / 2 - HandleRadius);
-      setY(m_item->rect().y() + m_item->rect().height() / 2 - HandleRadius);
-      break;
-    }
 
     setFlag( ItemSendsGeometryChanges );
+    
+}
+
+HandleItem::HandleItem( QGraphicsScene *scene) : QGraphicsItem( 0, scene )
+{
+  SetDefauls();
+
+
+  switch( m_role )
+  {
+  case RightHandle:
+    setX(m_item->rect().x() + m_item->rect().width() - HandleRadius);
+    setY(m_item->rect().y() + m_item->rect().height() / 2 - HandleRadius);
+    break;
+  case LeftHandle:
+    setX(m_item->rect().x() - HandleRadius);
+    setY(m_item->rect().y() + m_item->rect().height() / 2 - HandleRadius);
+    break;
+  case TopHandle:
+    setX(m_item->rect().left() + m_item->rect().width() / 2 - HandleRadius);
+    setY(m_item->rect().top() - HandleRadius);
+    break;
+  case BottomHandle:
+    setX(m_item->rect().left() + m_item->rect().width() / 2 - HandleRadius);
+    setY(m_item->rect().bottom() - HandleRadius);
+    break;
+  }
+
+}
+
+
+void HandleItem::SetRole(const HandleRole role)
+{
+  this->m_role = role;
+}
+
+void HandleItem::SetRectItem(QGraphicsRectItem* item)
+{
+  m_item = item;
 }
 
 void HandleItem::SetDependentHandles(QList<HandleItem*> handles)
