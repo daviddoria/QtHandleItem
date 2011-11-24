@@ -207,18 +207,16 @@ QVariant HandleItem::itemChange( GraphicsItemChange change, const QVariant &data
             m_item->setRect(newRect);
             newData.setX(m_item->boundingRect().x() + MinSize/2);
             newData.setY(pos().y());
-
-            emit Changed();
-            return QGraphicsItem::itemChange( change, newData );
         }
+        else
+        {
+            // Snap the movement to the X direction
+            newData.setY(m_item->rect().y() + m_item->rect().height() / 2 - HandleRadius);
 
-        // Snap the movement to the X direction
-        newData.setY(m_item->rect().y() + m_item->rect().height() / 2 - HandleRadius);
-
-        // Resize the rectangle
-        newRect.setRight(m_item->rect().right() + movement.x());
-        m_item->setRect(newRect);
-
+            // Resize the rectangle
+            newRect.setRight(m_item->rect().right() + movement.x());
+            m_item->setRect(newRect);
+        }
         break;
       }
     case LeftHandle:
@@ -233,18 +231,16 @@ QVariant HandleItem::itemChange( GraphicsItemChange change, const QVariant &data
           m_item->setRect(newRect);
           newData.setX(m_item->boundingRect().x() - MinSize / 2);
           newData.setY(pos().y());
-
-          emit Changed();
-          return QGraphicsItem::itemChange( change, newData );
         }
+        else
+        {
+            // Snap the movement to the X direction
+            newData.setY(m_item->rect().y() + m_item->rect().height() / 2 - HandleRadius);
 
-        // Snap the movement to the X direction
-        newData.setY(m_item->rect().y() + m_item->rect().height() / 2 - HandleRadius);
-
-        // Resize the rectangle
-        newRect.setLeft(m_item->rect().left() + movement.x());
-        m_item->setRect(newRect);
-
+            // Resize the rectangle
+            newRect.setLeft(m_item->rect().left() + movement.x());
+            m_item->setRect(newRect);
+        }
         break;
       }
     case TopHandle:
@@ -257,19 +253,17 @@ QVariant HandleItem::itemChange( GraphicsItemChange change, const QVariant &data
             m_item->setRect(newRect);
             newData.setX(pos().x());
             newData.setY(m_item->boundingRect().y() - boundingRect().height() / 2); // + m_item->boundingRect().height());
-
-            emit Changed();
-            return QGraphicsItem::itemChange( change, newData );
         }
+        else
+        {
+            // Snap the movement to the Y direction
+            newData.setX(m_item->rect().x() + m_item->rect().width() / 2 - HandleRadius);
 
-        // Snap the movement to the Y direction
-        newData.setX(m_item->rect().x() + m_item->rect().width() / 2 - HandleRadius);
+            // Resize the rectangle
+            newRect.setTop(m_item->rect().top() + movement.y());
 
-        // Resize the rectangle
-        newRect.setTop(m_item->rect().top() + movement.y());
-
-        m_item->setRect(newRect);
-
+            m_item->setRect(newRect);
+        }
         break;
       }
     case BottomHandle:
@@ -281,19 +275,17 @@ QVariant HandleItem::itemChange( GraphicsItemChange change, const QVariant &data
             m_item->setRect(newRect);
             newData.setX(pos().x());
             newData.setY(m_item->boundingRect().y() + boundingRect().height() / 2);
-
-            emit Changed();
-            return QGraphicsItem::itemChange( change, newData );
         }
+        else
+        {
+            // Snap the movement to the Y direction
+            newData.setX(m_item->rect().x() + m_item->rect().width() / 2 - HandleRadius);
 
-        // Snap the movement to the Y direction
-        newData.setX(m_item->rect().x() + m_item->rect().width() / 2 - HandleRadius);
+            // Resize the rectangle
+            newRect.setBottom(m_item->rect().bottom() + movement.y());
 
-        // Resize the rectangle
-        newRect.setBottom(m_item->rect().bottom() + movement.y());
-
-        m_item->setRect(newRect);
-
+            m_item->setRect(newRect);
+        }
         break;
       }
     case CenterHandle:
