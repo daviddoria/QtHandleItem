@@ -40,14 +40,14 @@ HandleItem::HandleItem( QRect rect, QGraphicsScene *scene, const QColor color) :
 
     this->SetDependentHandles(QList<HandleItem*>() << rightHandle << leftHandle << topHandle << bottomHandle);
 
-    SetDefauls();
+    SetDefaults();
     
     setX(m_item->rect().left() + m_item->rect().width() / 2 - HandleRadius);
     setY(m_item->rect().y() + m_item->rect().height() / 2 - HandleRadius);
     
 }
 
-void HandleItem::SetDefauls()
+void HandleItem::SetDefaults()
 {
     // These things are needed in both constructors
   
@@ -67,7 +67,7 @@ HandleItem::HandleItem( QGraphicsRectItem* item, const QColor color, const Handl
                        , m_item(item), m_color(color), m_role(role)
 {
   // This constructor is used internally to setup the left, right, top, and bottom handles
-  SetDefauls();
+  SetDefaults();
 
   switch( m_role )
   {
